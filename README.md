@@ -1,4 +1,4 @@
-# İett Location-Vehicle
+# Location-Vehicle
 
 ## Project Description
 

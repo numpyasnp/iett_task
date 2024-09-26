@@ -21,25 +21,41 @@ This project is a web application developed with Django. Developments will conti
 
 2. Build Docker images and start containers:
     ```bash
-    docker compose up --build
-    ```
-    or
-    ```bash
     docker compose up -d --build
     ```
 
-3. Run database migrations:
+3. Restore db dump
+   ```bash
+    docker cp <path>/iett.backup postgres_db:/.
+    ```
+   if your os mac/linux you can use this command:
+   ```bash
+    docker cp "$(pwd)/iett.backup" postgres_db:/.
+    ```
+
+4. Bash on Postgres:
+    ```bash
+    docker exec -it postgres_db bash
+    ```
+5. Execute pg_restore command for restore db backup:
+    ```bash
+    pg_restore -U postgres -d postgres ./iett.backup
+    ```
+
+6. If you restore db backup you can skip this step!! Run database migrations:
     ```bash
     docker exec -it iett_vehicle_tracking python manage.py migrate
     ```
 
-4. Create a superuser:
+7. Create a superuser:
     ```bash
     docker exec -it iett_vehicle_tracking python manage.py createsuperuser
     ```
 
-5. Start the application:
-    The application will be running at [http://localhost:8000](http://localhost:8000).
+8. The application will be running at [http://127.0.0.1:8000](http://localhost:8000).
+
+9. Api: Redoc Api [http://127.0.0.1:8000/api/schema/redoc/](http://127.0.0.1:8000/api/schema/redoc/)
+
 
 ## Usage
 
@@ -60,4 +76,3 @@ The project includes the following main models:
 ## License
 
 This project is licensed under the **MIT License** - see the `LICE
-

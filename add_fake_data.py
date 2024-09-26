@@ -6,21 +6,23 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vehicle_tracking.settings")
 import django
 
 django.setup()
+
+import random
+
 from faker import Faker
 from driver.models import Driver
+from location.models import Location
 from user.models import User
+from vehicle.models import Vehicle
+
+fake = Faker(["en_US"])
 
 
-def add_driver():
-    fake = Faker(["en_US"])
+def add_bulk_driver() -> None:
     drivers = []
     for i in range(10000):
-        user = create_user()
-        while True:
-            license_number = fake.random_number(digits=20, fix_len=True)
-            driver = Driver.objects.filter(license_number=license_number)
-            if not driver.exists():
-                break
+        user = add_user()
+        license_number = generate_license_number()
         try:
             driver = Driver(license_number=license_number, user=user)
             drivers.append(driver)
@@ -31,18 +33,73 @@ def add_driver():
     Driver.objects.bulk_create(drivers)
 
 
-def create_user():
-    fake = Faker(["en_US"])
+def add_driver() -> Driver:
+    user = add_user()
+    license_number = generate_license_number()
+    driver = Driver.objects.create(license_number=license_number, user=user)
+    print("driver: ", driver)
+    return driver
+
+
+def add_user() -> User:
     name = fake.first_name()
-    while True:
-        personal_id = fake.random_number(digits=11, fix_len=True)
-        user = User.objects.filter(personal_id=personal_id)
-        if not user.exists():
-            break
+    personal_id = generate_personal_id()
     user = User.objects.create(personal_id=personal_id, name=name)
-    user.save(update_fields=("password",))
     print("user: ", user)
     return user
 
 
-add_driver()
+def add_location() -> Location:
+    names = ["Bakırkoy-incirli", "Güneşli-YeniBosna", "Bağcılar-Bakırköy", "Küçükçekmece-Aksaray", "Kadıköy-Ümraniye"]
+    name = random.choice(names)
+    latitude = fake.latitude()
+    longitude = fake.longitude()
+    location = Location.objects.create(name=name, latitude=latitude, longitude=longitude)
+    return location
+
+
+def add_vehicle(driver: Driver) -> Vehicle:
+    models = ["Mercedes", "Man", "OTOKAR"]
+    is_actives = [True, False]
+    license_plate = generate_license_plate()
+    model = random.choice(models)
+    is_active = random.choice(is_actives)
+    vehicle = Vehicle.objects.create(license_plate=license_plate, model=model, driver=driver, is_active=is_active)
+    print("vehicle ", vehicle)
+    return vehicle
+
+
+def generate_personal_id() -> str:
+    while True:
+        personal_id = fake.random_number(digits=11, fix_len=True)
+        if not User.objects.filter(personal_id=personal_id).exists():
+            return str(personal_id)
+
+
+def generate_license_plate() -> str:
+    while True:
+        license_plate = fake.license_plate()
+        if not Vehicle.objects.filter(license_plate=license_plate).exists():
+            return str(license_plate)
+
+
+def generate_license_number() -> str:
+    while True:
+        license_number = fake.random_number(digits=20, fix_len=True)
+        if not Driver.objects.filter(license_number=license_number).exists():
+            return str(license_number)
+
+
+def create_vehicle():
+    driver = add_driver()
+    vehicle = add_vehicle(driver)
+    location = add_location()
+    vehicle.locations.add(location)
+
+
+def main():
+    for i in range(10000):
+        create_vehicle()
+
+
+main()

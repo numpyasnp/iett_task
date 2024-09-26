@@ -13,9 +13,13 @@ class Vehicle(TimestampedModel):
     license_plate = models.CharField(max_length=10, unique=True)
     model = models.CharField(max_length=50, null=True, blank=True)
     make = models.CharField(max_length=50, null=True, blank=True)
-    year = models.IntegerField()
-    driver = models.ForeignKey("driver.Driver", related_name="vehicles", on_delete=models.CASCADE)
-    location = models.ForeignKey("location.Location", null=True, related_name="vehicles", on_delete=models.CASCADE)
+    year = models.IntegerField(null=True)
+    driver = models.ForeignKey("driver.Driver", related_name="vehicles", on_delete=models.CASCADE, null=True)
+    locations = models.ManyToManyField("location.Location", related_name="vehicles")
     is_active = models.BooleanField(default=True)
 
     objects = models.manager.QuerySet()
+
+    @property
+    def has_location(self):
+        return self.locations is not None

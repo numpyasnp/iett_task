@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 
 urlpatterns = [
@@ -27,4 +28,10 @@ urlpatterns = [
     path("users/", include("user.api.urls")),
     path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # Spectacular API schema URL
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # OpenAPI şema
+    # Swagger interface
+    path("api/schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    # ReDoc
+    path("api/schema/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 ]

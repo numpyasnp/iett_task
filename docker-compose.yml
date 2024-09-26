@@ -1,13 +1,14 @@
-version: "3"
+version: "3.10"
 
 services:
-  web:
+  app:
     build: .
+    restart: always
     volumes:
-      - .:/iett_task
+      - .:/vehicle_tracking
     ports:
       - "8000:8000"
-    image: app:iett_vehicle_tracking
+    image: app:vehicle_tracking
     container_name: iett_vehicle_tracking
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     depends_on:
@@ -15,6 +16,13 @@ services:
 
   db:
     image: postgres
-    container_name: iett-postgresql
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    container_name: postgres_db
     environment:
-      POSTGRES_PASSWORD: test123
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test123
+
+volumes:
+  postgres_data:

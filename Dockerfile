@@ -1,9 +1,9 @@
 FROM python:3.10-buster
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONBUFFERED 1
 
-
-WORKDIR /iett_vehicle_tracking
+WORKDIR /vehicle_tracking
 
 COPY requirements.txt .
 

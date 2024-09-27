@@ -2,6 +2,7 @@ version: "3.10"
 
 services:
   app:
+    restart: always
     build: .
     volumes:
       - .:/vehicle_tracking
@@ -9,7 +10,7 @@ services:
       - "8000:8000"
     image: app:vehicle_tracking
     container_name: iett_vehicle_tracking
-    command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    command: python manage.py runserver 0.0.0.0:8000
     depends_on:
       - db
 

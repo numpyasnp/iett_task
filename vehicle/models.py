@@ -23,3 +23,6 @@ class Vehicle(TimestampedModel):
     @property
     def has_location(self):
         return self.locations is not None
+
+
+# TODO: redis

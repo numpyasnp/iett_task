@@ -7,8 +7,9 @@ WORKDIR /vehicle_tracking
 
 COPY requirements.txt .
 
+RUN pip install --upgrade pip
 # Install any needed packages specified in requirements.txt
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY . .
 

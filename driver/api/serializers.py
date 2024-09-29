@@ -1,8 +1,11 @@
 from rest_framework import serializers
 from driver.models import Driver
+from vehicle.api.serializers import VehicleSerializer
 
 
 class DriverSerializer(serializers.ModelSerializer):
+    vehicles = VehicleSerializer(many=True, read_only=True)
+
     class Meta:
         model = Driver
-        fields = "__all__"
+        fields = ["name", "personal_id", "license_number", "phone_number", "is_active", "vehicles"]

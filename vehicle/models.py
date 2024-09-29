@@ -18,7 +18,7 @@ class Vehicle(TimestampedModel):
     locations = models.ManyToManyField("location.Location", related_name="vehicles")
     is_active = models.BooleanField(default=True)
 
-    objects = models.manager.QuerySet()
+    objects = VehicleQuerySet.as_manager()
 
     @property
     def has_location(self):

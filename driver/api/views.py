@@ -1,11 +1,13 @@
 from django.conf import settings
 from django.core.cache import cache
+from django.db.models import Prefetch
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, filters, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from vehicle.models import Vehicle
 from .serializers import DriverSerializer
 from driver.models import Driver
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -34,18 +36,25 @@ class DriverViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class DriverVehicleViewSet(viewsets.ViewSet):
+class DriverActiveVehicleViewSet(viewsets.ViewSet):
     BASE_CACHE_KEY = "driver_vehicles"
 
+    @extend_schema(
+        summary="List all vehicle of Drivers",
+        description="Returns a list of all drivers in the database.",
+        responses={200: DriverSerializer},
+    )
     def retrieve(self, request, pk=None):
-        cache_key = self.BASE_CACHE_KEY + str(pk)
+        cache_key = self.BASE_CACHE_KEY + "_" + str(pk)
         if cached_data := cache.get(cache_key):
+            print("data from cache")
             return Response(cached_data)
 
         try:
-            driver = Driver.objects.prefetch_related("vehicles").get(pk=pk)
+            location_prefetch = Prefetch("vehicle__locations", queryset=Vehicle.objects.active())
+            driver = Driver.objects.active().prefetch_related("vehicles", location_prefetch).get(pk=pk)
         except Driver.DoesNotExist:
-            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Driver not found."}, status=status.HTTP_404_NOT_FOUND)
 
         serializer = DriverSerializer(driver)
 

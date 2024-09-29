@@ -1,14 +1,12 @@
-# Create your tests here.
 from django.contrib.auth.models import User
-
-from model_bakery import baker
 from rest_framework.test import APITestCase
 from django.urls import reverse
 
 from driver.models import Driver
+from driver.tests.mixins import BaseDriverMixin
 
 
-class DriverApiTest(APITestCase):
+class DriverApiTest(APITestCase, BaseDriverMixin):
 
     def setUp(self):
         self.username = "admin"
@@ -43,7 +41,7 @@ class DriverApiTest(APITestCase):
 
     def test_get_driver_details(self):
         # Given
-        driver = baker.make("driver.Driver")
+        driver = self.create_driver()
         url = reverse("driver-detail", kwargs={"pk": driver.pk})
 
         # When
@@ -55,8 +53,7 @@ class DriverApiTest(APITestCase):
     def test_create_driver(self):
         # Given
         url = reverse("driver-list")
-        user = baker.make("user.User")
-        data = {"user": user.pk, "license_number": "123456789"}
+        data = {"license_number": "123456789", "name": "ugurcan", "personal_id": "123"}
 
         # When
         response = self.client.post(url, data=data, format="json")
@@ -66,18 +63,22 @@ class DriverApiTest(APITestCase):
         self.assertEquals(Driver.objects.count(), 1)
         driver = Driver.objects.first()
         self.assertEquals(driver.license_number, data["license_number"])
-        self.assertEquals(driver.user_id, data["user"])
 
     def test_update_driver(self):
         # Given
-        license_number = "1900"
-        user = baker.make("user.User")
-        driver = baker.make("driver.Driver", license_number=license_number, user=user)
+        license_number, personal_id, name, phone_number = "111", "222", "Ugurcan", "+905523336677"
+        driver = self.create_driver(personal_id, license_number, name, phone_number)
         url = reverse("driver-detail", kwargs={"pk": driver.pk})
-        new_data = {"license_number": "1991", "user": user.pk, "phone_number": "+905551112233"}
+        new_data = {
+            "license_number": "1991",
+            "phone_number": "+905551112233",
+            "name": "lorem ipsum",
+            "personal_id": "234",
+        }
         self.assertEquals(driver.license_number, license_number)
-        self.assertEquals(driver.user, user)
-        self.assertEquals(driver.phone_number, None)
+        self.assertEquals(driver.name, name)
+        self.assertEquals(driver.personal_id, personal_id)
+        self.assertEquals(driver.phone_number, phone_number)
 
         # When
         response = self.client.put(url, new_data, format="json")
@@ -85,13 +86,13 @@ class DriverApiTest(APITestCase):
         # Then
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data["license_number"], new_data["license_number"])
-        self.assertEquals(response.data["user"], new_data["user"])
         self.assertEquals(response.data["phone_number"], new_data["phone_number"])
+        self.assertEquals(response.data["name"], new_data["name"])
+        self.assertEquals(response.data["personal_id"], new_data["personal_id"])
 
     def test_destroy_driver(self):
         # Given
-        user = baker.make("user.User")
-        driver = baker.make("driver.Driver", license_number="1900", user=user)
+        driver = self.create_driver()
         url = reverse("driver-detail", kwargs={"pk": driver.pk})
 
         self.assertEquals(Driver.objects.count(), 1)

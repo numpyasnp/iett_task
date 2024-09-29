@@ -1,7 +1,10 @@
+from django.conf import settings
+from django.core.cache import cache
 from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .serializers import DriverSerializer
 from driver.models import Driver
@@ -14,7 +17,7 @@ class DriverSearchPagination(LimitOffsetPagination):
 
 
 class DriverViewSet(viewsets.ModelViewSet):
-    queryset = Driver.objects.select_related("user").all()
+    queryset = Driver.objects.prefetch_related("vehicles").all()
     serializer_class = DriverSerializer
     pagination_class = DriverSearchPagination
     permission_classes = [IsAuthenticated]
@@ -29,3 +32,23 @@ class DriverViewSet(viewsets.ModelViewSet):
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+
+
+class DriverVehicleViewSet(viewsets.ViewSet):
+    BASE_CACHE_KEY = "driver_vehicles"
+
+    def retrieve(self, request, pk=None):
+        cache_key = self.BASE_CACHE_KEY + str(pk)
+        if cached_data := cache.get(cache_key):
+            return Response(cached_data)
+
+        try:
+            driver = Driver.objects.prefetch_related("vehicles").get(pk=pk)
+        except Driver.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = DriverSerializer(driver)
+
+        cache.set(cache_key, serializer.data, timeout=settings.DRIVER_VEHICLE_CACHE_TTL)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)

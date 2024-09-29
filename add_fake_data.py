@@ -1,18 +1,14 @@
 import os
 
-
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vehicle_tracking.settings")
-
 import django
 
 django.setup()
 
 import random
-
 from faker import Faker
 from driver.models import Driver
 from location.models import Location
-from user.models import User
 from vehicle.models import Vehicle
 
 fake = Faker(["en_US"])
@@ -21,10 +17,11 @@ fake = Faker(["en_US"])
 def add_bulk_driver() -> None:
     drivers = []
     for i in range(10000):
-        user = add_user()
         license_number = generate_license_number()
+        name = fake.first_name()
+        personal_id = generate_personal_id()
         try:
-            driver = Driver(license_number=license_number, user=user)
+            driver = Driver(name=name, personal_id=personal_id, license_number=license_number)
             drivers.append(driver)
             print("add driver -> ", i)
         except Exception as e:
@@ -34,19 +31,12 @@ def add_bulk_driver() -> None:
 
 
 def add_driver() -> Driver:
-    user = add_user()
+    name = fake.first_name()
     license_number = generate_license_number()
-    driver = Driver.objects.create(license_number=license_number, user=user)
+    personal_id = generate_personal_id()
+    driver = Driver.objects.create(name=name, personal_id=personal_id, license_number=license_number)
     print("driver: ", driver)
     return driver
-
-
-def add_user() -> User:
-    name = fake.first_name()
-    personal_id = generate_personal_id()
-    user = User.objects.create(personal_id=personal_id, name=name)
-    print("user: ", user)
-    return user
 
 
 def add_location() -> Location:
@@ -72,7 +62,7 @@ def add_vehicle(driver: Driver) -> Vehicle:
 def generate_personal_id() -> str:
     while True:
         personal_id = fake.random_number(digits=11, fix_len=True)
-        if not User.objects.filter(personal_id=personal_id).exists():
+        if not Driver.objects.filter(personal_id=personal_id).exists():
             return str(personal_id)
 
 

@@ -17,54 +17,25 @@
 							"name": "list_drivers",
 							"request": {
 								"auth": {
-									"type": "jwt",
-									"jwt": [
+									"type": "bearer",
+									"bearer": [
 										{
-											"key": "secret",
+											"key": "token",
 											"value": "{{TOKEN}}",
-											"type": "string"
-										},
-										{
-											"key": "algorithm",
-											"value": "HS256",
-											"type": "string"
-										},
-										{
-											"key": "isSecretBase64Encoded",
-											"value": false,
-											"type": "boolean"
-										},
-										{
-											"key": "payload",
-											"value": "{}",
-											"type": "string"
-										},
-										{
-											"key": "addTokenTo",
-											"value": "header",
-											"type": "string"
-										},
-										{
-											"key": "headerPrefix",
-											"value": "Bearer",
-											"type": "string"
-										},
-										{
-											"key": "queryParamKey",
-											"value": "token",
-											"type": "string"
-										},
-										{
-											"key": "header",
-											"value": "{}",
 											"type": "string"
 										}
 									]
 								},
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text"
+									}
+								],
 								"url": {
-									"raw": "http://127.0.0.1:8000/driver/drivers/",
+									"raw": "http://127.0.0.1:8000/drivers/api/v1/?limit=100&offset=1",
 									"protocol": "http",
 									"host": [
 										"127",
@@ -74,9 +45,20 @@
 									],
 									"port": "8000",
 									"path": [
-										"driver",
 										"drivers",
+										"api",
+										"v1",
 										""
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "100"
+										},
+										{
+											"key": "offset",
+											"value": "1"
+										}
 									]
 								}
 							},
@@ -98,7 +80,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://127.0.0.1:8000/driver/drivers/?limit=10&offset=20&search=\"45069570654359060300\"",
+									"raw": "http://127.0.0.1:8000/drivers/api/v1/?search=\"40850631768\"",
 									"protocol": "http",
 									"host": [
 										"127",
@@ -108,35 +90,133 @@
 									],
 									"port": "8000",
 									"path": [
-										"driver",
 										"drivers",
+										"api",
+										"v1",
 										""
 									],
 									"query": [
 										{
-											"key": "limit",
-											"value": "10"
-										},
-										{
-											"key": "offset",
-											"value": "20"
-										},
-										{
 											"key": "search",
-											"value": "\"45069570654359060300\""
+											"value": "\"40850631768\""
 										}
 									]
 								}
 							},
 							"response": []
-						}
-					]
-				},
-				{
-					"name": "user",
-					"item": [
+						},
 						{
-							"name": "get_users",
+							"name": "add_driver",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{TOKEN}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\"name\":\"Ugurcan test\",\n\"personal_id\":\"3131313131\",\n\"license_number\": \"12345\",\n\"phone_number\": \"+90532546466\",\n\"user\": 752843\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/drivers/api/v1/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"drivers",
+										"api",
+										"v1",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update_driver",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{TOKEN}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{   \n    \"name\":\"UĞURCAN\",\n    \"personal_id\":\"12231321\",\n    \"license_number\":\"1992\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/drivers/api/v1/660106/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"drivers",
+										"api",
+										"v1",
+										"660106",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete_driver",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{TOKEN}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/drivers/api/v1/660106/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"drivers",
+										"api",
+										"v1",
+										"660106",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get_active_driver_vehicle_list",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -151,14 +231,57 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{base_url}}/users/api/v1",
+									"raw": "http://127.0.0.1:8000/drivers/api/v1/2/vehicles/",
+									"protocol": "http",
 									"host": [
-										"{{base_url}}"
+										"127",
+										"0",
+										"0",
+										"1"
 									],
+									"port": "8000",
 									"path": [
-										"users",
+										"drivers",
 										"api",
-										"v1"
+										"v1",
+										"2",
+										"vehicles",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get_driver",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{TOKEN}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/drivers/api/v1/1",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"drivers",
+										"api",
+										"v1",
+										"1"
 									]
 								}
 							},
@@ -178,6 +301,7 @@
 										"exec": [
 											"var jsonData = pm.response.json();",
 											"pm.environment.set(\"TOKEN\", jsonData.access);",
+											"pm.environment.set(\"REFRESH_TOKEN\", jsonData.refresh);",
 											""
 										],
 										"type": "text/javascript",
@@ -190,7 +314,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"username\":\"admin1\",\n    \"password\":\"admin123\"\n}",
+									"raw": "{\n    \"username\":\"admin\",\n    \"password\":\"admin123\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -218,12 +342,25 @@
 						},
 						{
 							"name": "refresh_token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"TOKEN\", jsonData.access);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"refresh\":{{TOKEN}}\n}",
+									"raw": "{\n    \"refresh\": \"{{REFRESH_TOKEN}}\"\n} ",
 									"options": {
 										"raw": {
 											"language": "json"

@@ -4,13 +4,11 @@ from django.db.models import Prefetch
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, filters, status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from vehicle.models import Vehicle
+from libs.api.authentication.mixins import JWTIsAuthenticatedMixin
 from .serializers import DriverSerializer, DriverVehicleSerializer
 from driver.models import Driver
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class DriverSearchPagination(LimitOffsetPagination):
@@ -18,14 +16,12 @@ class DriverSearchPagination(LimitOffsetPagination):
     max_limit = 250
 
 
-class DriverViewSet(viewsets.ModelViewSet):
+class DriverViewSet(viewsets.ModelViewSet, JWTIsAuthenticatedMixin):
     queryset = Driver.objects.prefetch_related("vehicles").all()
     serializer_class = DriverSerializer
     pagination_class = DriverSearchPagination
-    permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
     filter_backends = (filters.SearchFilter,)
-    search_fields = ["license_number", "user__name"]
+    search_fields = ["license_number", "name", "personal_id"]
 
     @extend_schema(
         summary="List all drivers",
@@ -36,7 +32,7 @@ class DriverViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class DriverActiveVehicleViewSet(viewsets.ViewSet):
+class DriverActiveVehicleViewSet(viewsets.ViewSet, JWTIsAuthenticatedMixin):
     BASE_CACHE_KEY = "driver_vehicles"
 
     @extend_schema(
@@ -51,7 +47,7 @@ class DriverActiveVehicleViewSet(viewsets.ViewSet):
             return Response(cached_data)
 
         try:
-            location_prefetch = Prefetch("vehicle__locations", queryset=Vehicle.objects.active())
+            location_prefetch = Prefetch("vehicles__locations")
             driver = Driver.objects.active().prefetch_related("vehicles", location_prefetch).get(pk=pk)
         except Driver.DoesNotExist:
             return Response({"detail": "Driver not found."}, status=status.HTTP_404_NOT_FOUND)

@@ -23,7 +23,7 @@ class DriverApiTest(APITestCase):
     def test_unauthorized_api_call(self):
         # Given
         self.client.credentials()
-        url = reverse("driver:driver-list")
+        url = reverse("driver-list")
 
         # When
         response = self.client.get(url)
@@ -33,7 +33,7 @@ class DriverApiTest(APITestCase):
 
     def test_get_driver_list(self):
         # Given
-        url = reverse("driver:driver-list")
+        url = reverse("driver-list")
 
         # When
         response = self.client.get(url)
@@ -44,7 +44,7 @@ class DriverApiTest(APITestCase):
     def test_get_driver_details(self):
         # Given
         driver = baker.make("driver.Driver")
-        url = reverse("driver:driver-detail", kwargs={"pk": driver.pk})
+        url = reverse("driver-detail", kwargs={"pk": driver.pk})
 
         # When
         response = self.client.get(url)
@@ -54,14 +54,12 @@ class DriverApiTest(APITestCase):
 
     def test_create_driver(self):
         # Given
-        url = reverse("driver:driver-list")
+        url = reverse("driver-list")
         user = baker.make("user.User")
         data = {"user": user.pk, "license_number": "123456789"}
-        print("url", url)
 
         # When
         response = self.client.post(url, data=data, format="json")
-        print(response)
 
         # Then
         self.assertEquals(response.status_code, 201)
@@ -75,7 +73,7 @@ class DriverApiTest(APITestCase):
         license_number = "1900"
         user = baker.make("user.User")
         driver = baker.make("driver.Driver", license_number=license_number, user=user)
-        url = reverse("driver:driver-detail", kwargs={"pk": driver.pk})
+        url = reverse("driver-detail", kwargs={"pk": driver.pk})
         new_data = {"license_number": "1991", "user": user.pk, "phone_number": "+905551112233"}
         self.assertEquals(driver.license_number, license_number)
         self.assertEquals(driver.user, user)
@@ -94,7 +92,7 @@ class DriverApiTest(APITestCase):
         # Given
         user = baker.make("user.User")
         driver = baker.make("driver.Driver", license_number="1900", user=user)
-        url = reverse("driver:driver-detail", kwargs={"pk": driver.pk})
+        url = reverse("driver-detail", kwargs={"pk": driver.pk})
 
         self.assertEquals(Driver.objects.count(), 1)
 

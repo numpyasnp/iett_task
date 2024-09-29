@@ -4,6 +4,12 @@ from vehicle.api.serializers import VehicleSerializer
 
 
 class DriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Driver
+        fields = ["name", "personal_id", "license_number", "phone_number", "is_active"]
+
+
+class DriverVehicleSerializer(serializers.ModelSerializer):
     vehicles = VehicleSerializer(many=True, read_only=True)
 
     class Meta:

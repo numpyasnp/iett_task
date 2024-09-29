@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from vehicle.models import Vehicle
-from .serializers import DriverSerializer
+from .serializers import DriverSerializer, DriverVehicleSerializer
 from driver.models import Driver
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -56,7 +56,7 @@ class DriverActiveVehicleViewSet(viewsets.ViewSet):
         except Driver.DoesNotExist:
             return Response({"detail": "Driver not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = DriverSerializer(driver)
+        serializer = DriverVehicleSerializer(driver)
 
         cache.set(cache_key, serializer.data, timeout=settings.DRIVER_VEHICLE_CACHE_TTL)
 

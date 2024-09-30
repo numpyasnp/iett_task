@@ -37,7 +37,7 @@ class DriverActiveVehicleViewSet(viewsets.ViewSet, JWTIsAuthenticatedMixin):
 
     @extend_schema(
         summary="List all vehicle of Drivers",
-        description="Returns a list of all drivers in the database.",
+        description="Returns a list of vehicle of drivers in the database.",
         responses={200: DriverSerializer},
     )
     def retrieve(self, request, pk=None):
